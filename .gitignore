@@ -1,0 +1,17 @@
+# dependencies — reinstall with `npm install` in web/
+web/node_modules/
+
+# build output — regenerate with `npm run build` in web/ (writes into bali-album/vite-assets/)
+bali-album/vite-assets/
+
+# dev screenshots (verification captures, not project files)
+/*.png
+/bali-album/shot-*.png
+
+# backups & scratch
+*.bak
+*.orig
+
+# OS junk
+Thumbs.db
+.DS_Store

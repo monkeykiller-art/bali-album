@@ -1,0 +1,163 @@
+[
+  {
+    "key": "bromo",
+    "cls": "bromo",
+    "label": "01",
+    "hint": "BROMO",
+    "date": "04.26",
+    "region": "JAVA",
+    "meta": "01 / 05 · 04:59 · -7.937, 112.954 · <b>BROMO</b> · 火山沙海 · CONTACT SHEET 01",
+    "thumb": "../photos/bromo.jpg",
+    "style": {
+      "line": "#f1ff33",
+      "bg": "#cd2d2d",
+      "stampColor": "#000000",
+      "titleColor": "#000000",
+      "kickerColor": "#000000",
+      "cnColor": "#000000",
+      "taglineColor": "#f1ff33",
+      "quoteColor": "#000000",
+      "quoteCnColor": "#000000",
+      "spotColor": "#f1ff33",
+      "btagColor": "#ffffff",
+      "tlColor": "#000000"
+    }
+  },
+  {
+    "key": "uluwatu",
+    "cls": "uluwatu",
+    "label": "02",
+    "hint": "ULUWATU",
+    "date": "04.30",
+    "region": "BALI",
+    "meta": "02 / 05 · 18:40 · -8.829, 115.085 · <b>ULUWATU</b> · 悬崖神庙 · CONTACT SHEET 02",
+    "thumb": "../photos/uluwatu.jpg",
+    "style": {
+      "line": "#3c32cd",
+      "bg": "#ebebeb",
+      "stampColor": "#ff0000",
+      "titleColor": "#287e10",
+      "kickerColor": "#000000",
+      "cnColor": "#8a8a8a",
+      "taglineColor": "#3c32cd",
+      "quoteColor": "#000000",
+      "quoteCnColor": "#000000",
+      "spotColor": "#3c32cd",
+      "btagColor": "#ffffff",
+      "tlColor": "#000000"
+    }
+  },
+  {
+    "key": "ijen",
+    "cls": "ijen",
+    "label": "03",
+    "hint": "IJEN",
+    "date": "04.27",
+    "region": "JAVA",
+    "meta": "03 / 05 · 04:10 · -8.058, 114.242 · <b>IJEN</b> · 蓝色火焰 · CONTACT SHEET 03",
+    "thumb": "../photos/ijen.jpg",
+    "style": {
+      "line": "#a9b937",
+      "bg": "#3f697d",
+      "stampColor": "#ff0000",
+      "titleColor": "#ffffff",
+      "kickerColor": "#ffffff",
+      "cnColor": "#ffffff",
+      "taglineColor": "#ffffff",
+      "quoteColor": "#ffffff",
+      "quoteCnColor": "#ffffff",
+      "spotColor": "#ffffff",
+      "btagColor": "#ffffff",
+      "tlColor": "#ffffff"
+    }
+  },
+  {
+    "key": "ubud",
+    "cls": "ubud",
+    "label": "04",
+    "hint": "UBUD",
+    "date": "05.01",
+    "region": "UBUD",
+    "meta": "04 / 05 · 07:20 · -8.507, 115.262 · <b>UBUD</b> · 晨雾梯田 · CONTACT SHEET 04",
+    "thumb": "../photos/ubud.jpg",
+    "style": {
+      "line": "#ffffff",
+      "bg": "#1a6622",
+      "stampColor": "#28a4c3",
+      "titleColor": "#ffffff",
+      "kickerColor": "#ffffff",
+      "cnColor": "#ffffff",
+      "taglineColor": "#ffffff",
+      "quoteColor": "#ffffff",
+      "quoteCnColor": "#ffffff",
+      "spotColor": "#ffffff",
+      "btagColor": "#ffffff",
+      "tlColor": "#ffffff"
+    }
+  },
+  {
+    "key": "nusa-penida",
+    "cls": "nusapenida",
+    "label": "05",
+    "hint": "NUSA PENIDA",
+    "date": "05.02",
+    "region": "BALI",
+    "meta": "05 / 05 · 10:20 · -8.727, 115.544 · <b>NUSA PENIDA</b> · 破碎海滩 · CONTACT SHEET 05",
+    "thumb": "../photos/nusapenida.jpg",
+    "style": {
+      "line": "#24c1d6",
+      "bg": "#ae8a4c",
+      "stampColor": "#ff0000",
+      "titleColor": "#000000",
+      "kickerColor": "#000000",
+      "cnColor": "#000000",
+      "taglineColor": "#24c1d6",
+      "quoteColor": "#000000",
+      "quoteCnColor": "#000000",
+      "spotColor": "#24c1d6",
+      "btagColor": "#ffffff",
+      "tlColor": "#000000"
+    }
+  },
+  {
+    "key": "1",
+    "cls": "1",
+    "label": "06",
+    "hint": "1",
+    "date": "",
+    "region": "",
+    "meta": "06 / 06 · <b>1</b> · NEW ROLL · CONTACT SHEET 06",
+    "thumb": null,
+    "managed": true,
+    "style": {
+      "bg": "#707070",
+      "line": "#ffffff",
+      "stampColor": "#ffffff",
+      "titleColor": "#ffffff",
+      "kickerColor": "#ffffff",
+      "cnColor": "#ffffff",
+      "taglineColor": "#ffffff",
+      "quoteColor": "#ffffff",
+      "quoteCnColor": "#ffffff",
+      "spotColor": "#ffffff",
+      "btagColor": "#ffffff",
+      "tlColor": "#ffffff"
+    },
+    "copy": {
+      "title": "TITLE",
+      "kicker": "KICKER",
+      "cn": "CN",
+      "tagline": "TAGLINE",
+      "quote": "QUOTE",
+      "quoteCn": "QUOTE-CN",
+      "spot": "SPOT",
+      "btagline": "B-TAGLINE",
+      "timeline": [
+        [
+          "TIMELINE",
+          "TIMELINE"
+        ]
+      ]
+    }
+  }
+]

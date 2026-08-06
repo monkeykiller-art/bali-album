@@ -1,0 +1,738 @@
+
+/* ============================================================
+   BALI 2026 —Travel Journal · Kodak Portra 400 Film System
+   ============================================================ */
+:root{
+  --bg:#0c0a09;
+  --bg-panel:#141210;
+  --ink:#f5f1e8;
+  --ink-dim:#9a938a;
+  --ink-faint:#5c564e;
+  --line:rgba(245,241,232,.14);
+  --mono:'Space Mono','Courier New',monospace;
+  --display:'Bebas Neue','Arial Narrow',sans-serif;
+  --serif:'Playfair Display',Georgia,serif;
+  --cn:'Noto Serif SC','STSong','SimSun',serif;
+  --hand:'Caveat','Segoe Script',cursive;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+/* React mount: restores the flex chain the wrapper div breaks
+   (body > #root > topbar/stage) so the stage fills the viewport */
+#root{display:flex;flex-direction:column;height:100%;min-height:0}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--mono);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- film grain overlay ---------- */
+.grain{
+  position:fixed;inset:-100px;z-index:60;pointer-events:none;opacity:.08;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 1.2s steps(4) infinite;
+}
+@keyframes grain{
+  0%{transform:translate(0,0)}25%{transform:translate(-40px,30px)}
+  50%{transform:translate(30px,-45px)}75%{transform:translate(-25px,-20px)}100%{transform:translate(0,0)}
+}
+/* vignette for cinema feel */
+.vignette{position:fixed;inset:0;z-index:55;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 62%,rgba(0,0,0,.42) 100%)}
+
+/* ---------- top bar ---------- */
+.topbar{
+  height:52px;flex:0 0 52px;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 22px;border-bottom:1px solid var(--line);
+  background:rgba(12,10,9,.92);backdrop-filter:blur(6px);
+  font-size:11px;letter-spacing:.18em;color:var(--ink-dim);
+}
+.topbar .brand{color:var(--ink);font-weight:700;display:flex;align-items:center;gap:10px}
+.topbar .brand::before{content:"";width:9px;height:9px;border-radius:50%;background:#e56c2f;box-shadow:0 0 8px #e56c2f88}
+/* divider-style page indicator (replaces chapter title chip) */
+.top-pager{flex:1;display:flex;align-items:center;justify-content:center;gap:12px;min-width:0;padding:0 16px}
+.top-pager .dash{flex:1;max-width:150px;border-top:1px dashed rgba(245,241,232,.32)}
+.top-pager .tp-btn{
+  background:none;border:none;color:var(--ink-dim);cursor:pointer;
+  font-family:var(--mono);font-size:16px;line-height:1;padding:2px 6px;transition:color .25s,transform .25s;
+}
+.top-pager .tp-btn:hover{color:#e56c2f;transform:translateY(-1px)}
+.top-pager .tp-count{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--ink);white-space:nowrap}
+.top-pager .tp-count b{color:#e56c2f;font-weight:700}
+.nav-btns{display:flex;gap:8px}
+.nav-btns button{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+  background:none;border:1px solid var(--line);color:var(--ink-dim);
+  padding:6px 14px;cursor:pointer;transition:all .25s;
+}
+.nav-btns button:hover{color:var(--ink);border-color:var(--ink);background:rgba(245,241,232,.06)}
+
+/* ---------- stage ---------- */
+#stage{flex:1;position:relative;overflow:hidden}
+.page{
+  position:absolute;inset:0;
+  opacity:0;visibility:hidden;transform:scale(.985);
+  transition:opacity .75s ease,transform .75s ease,visibility .75s;
+}
+.page.active{opacity:1;visibility:visible;transform:none;z-index:2}
+
+/* ---------- chapter layout ---------- */
+/* per-chapter colour palette (--t-*). Every chapter class below only overrides
+   these variables, and the text-config page can override them inline per page,
+   so unconfigured pages keep their original look pixel for pixel. */
+.chapter{
+  --t-bg:#161008;--t-text:var(--ink);--t-title:var(--t-text);--t-muted:var(--ink-dim);
+  --t-faint:var(--ink-faint);--t-quote:#d8d2c6;--t-tagline:var(--t-muted);--t-em:var(--accent);
+  --t-cnsub:var(--t-muted);--t-kb:var(--accent);--t-bnum:var(--accent);--t-spot:var(--t-faint);--t-spotb:var(--accent);
+  --t-line:var(--accent);--t-rule:var(--t-line);
+  --t-hair:var(--line);--t-btag:#fdf9ef;
+  --t-stamp-color:var(--accent); /* postmark ink — chapter classes override, text config can too */
+  /* per-element colour aliases — the text config page overrides these
+     independently; each falls back to the legacy palette variable so
+     unconfigured pages keep their original look pixel for pixel */
+  --t-title-color:var(--t-title);--t-kicker-color:var(--t-muted);
+  --t-cn-color:var(--t-cnsub);--t-tagline-color:var(--t-tagline);
+  --t-quote-color:var(--t-quote);--t-quotecn-color:var(--t-muted);
+  --t-spot-color:var(--t-spot);--t-btag-color:var(--t-btag);
+  --t-tl-color:var(--t-muted);
+  z-index:2;height:100%;
+  width:100%;max-width:1400px;margin:0 auto; /* centered, tighter than full-bleed */
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:100%;
+  gap:40px;padding:44px 40px 40px;align-items:stretch;overflow-y:auto;
+  background:var(--t-bg);
+}
+.info{
+  position:relative;padding:44px 40px 90px;
+  display:flex;flex-direction:column;
+  background:
+    linear-gradient(160deg, color-mix(in srgb,var(--accent) 26%,var(--t-bg)) 0%, var(--t-bg) 68%, color-mix(in srgb,var(--t-bg) 60%,#000) 100%);
+  border-right:1px solid var(--line);
+  overflow-y:auto;
+}
+.info::after{ /* torn film edge */
+  content:"";position:absolute;top:0;right:-1px;bottom:0;width:14px;
+  background:repeating-linear-gradient(180deg,transparent 0 14px,rgba(0,0,0,.85) 14px 26px);
+  border-left:1px solid var(--line);
+}
+.kicker{font-size:10px;letter-spacing:.32em;color:var(--t-kicker-color);margin-bottom:26px}
+.kicker b{color:var(--t-kb)}
+.title{
+  font-family:var(--display);font-size:clamp(56px,7.5vw,96px);line-height:.92;
+  letter-spacing:.04em;color:var(--t-title-color);
+}
+.underline{width:72px;height:3px;background:var(--t-line);margin:16px 0 14px;box-shadow:0 0 10px var(--t-line)}
+.cn-sub{font-family:var(--cn);font-weight:600;font-size:20px;letter-spacing:.5em;color:var(--t-cn-color)}
+.tagline{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--t-tagline-color);margin-top:10px}
+.tagline em{color:var(--t-em)}
+
+.timeline{list-style:none;margin:30px 0 26px;border-top:1px solid var(--line)}
+.timeline li{
+  display:flex;gap:14px;align-items:baseline;
+  padding:10px 2px;border-bottom:1px solid var(--line);
+  font-size:12px;letter-spacing:.06em;color:var(--t-tl-color);
+}
+.timeline li b{font-family:var(--mono);color:var(--t-bnum);font-weight:700;min-width:22px}
+.timeline li .t{color:var(--t-text);min-width:52px}
+
+.quote{
+  font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.75;
+  color:var(--t-quote-color);padding-left:16px;border-left:2px solid var(--t-rule);
+  margin-top:auto;
+}
+.quote-cn{font-family:var(--cn);font-style:normal;font-size:12.5px;color:var(--t-quotecn-color);margin-top:8px;letter-spacing:.08em}
+.chapter-space{min-height:0} /* empty right column, mirrors .cover-space role */
+/* photo pages: right column full-bleed photo viewer + film-strip thumbs (bromo + photo-page) */
+.bromo .chapter-space,.photo-page .chapter-space{position:relative;display:block;overflow:hidden;background:#000}
+.bromo .chapter-space .bshot,.photo-page .chapter-space .bshot{
+  position:absolute;inset:0;background-size:cover;background-position:center;
+  background-repeat:no-repeat;opacity:0;transition:opacity .65s ease;
+  filter:saturate(.92) contrast(1.04);
+}
+.bromo .chapter-space .bshot.active,.photo-page .chapter-space .bshot.active{opacity:1}
+.bromo .bthumbs,.photo-page .bthumbs{
+  position:absolute;top:50%;right:14px;transform:translateY(-50%);z-index:2;
+  display:flex;flex-direction:column;gap:10px;padding:10px 8px;
+  background:rgba(10,8,6,.38);border:1px solid rgba(255,255,255,.18);
+  border-radius:6px;backdrop-filter:blur(3px);
+}
+/* film-sprocket edges: punched-hole strips above & below the thumb strip */
+.bromo .bthumbs::before,.photo-page .bthumbs::before,
+.bromo .bthumbs::after,.photo-page .bthumbs::after{
+  content:"";display:block;flex:0 0 auto;
+  width:100%;height:13px;border-radius:2px;
+  background-color:rgba(0,0,0,.5);
+  background-image:radial-gradient(circle at 7.5px 50%,rgba(245,241,232,.34) 2.6px,transparent 3.2px);
+  background-size:15px 100%;
+  background-repeat:repeat-x;
+  pointer-events:none;
+}
+.bromo .bthumbs::before,.photo-page .bthumbs::before{margin-bottom:8px}
+.bromo .bthumbs::after,.photo-page .bthumbs::after{margin-top:8px}
+.bromo .bthumb,.photo-page .bthumb{
+  width:46px;height:46px;padding:0;border:2px solid rgba(255,255,255,.5);
+  border-radius:3px;background-size:cover;background-position:center;
+  cursor:pointer;opacity:.5;filter:saturate(.9);
+  transition:opacity .3s,border-color .3s,transform .3s,box-shadow .3s;
+}
+.bromo .bthumb:hover,.photo-page .bthumb:hover{opacity:.95;border-color:#fff;transform:scale(1.07)}
+.bromo .bthumb.active,.photo-page .bthumb.active{opacity:1;border-color:#f5803f;box-shadow:0 0 0 2px rgba(245,128,63,.45),0 3px 10px rgba(0,0,0,.55)}
+/* photo area: bottom caption layer */
+.bromo .bcaption,.photo-page .bcaption{
+  position:absolute;left:22px;bottom:18px;z-index:1;pointer-events:none;
+  display:flex;flex-direction:column;gap:6px;max-width:75%;
+}
+.bromo .bchapter,.photo-page .bchapter{
+  font-size:9.5px;letter-spacing:.3em;text-transform:uppercase;
+  color:rgba(255,255,255,.78);text-shadow:0 1px 6px rgba(0,0,0,.6);
+}
+.bromo .btagline,.photo-page .btagline{
+  font-family:var(--hand);font-style:italic;line-height:1.15;
+  font-size:clamp(19px,1.8vw,26px);color:var(--t-btag-color);
+  transform:rotate(-2deg);text-shadow:0 2px 12px rgba(0,0,0,.65);
+}
+.bromo .btagline em,.photo-page .btagline em{color:var(--t-em)}
+/* photo area: current photo counter, bottom-right of the viewer */
+.bromo .bcount,.photo-page .bcount{
+  position:absolute;right:20px;bottom:20px;z-index:1;pointer-events:none;
+  font-family:var(--display);font-size:28px;letter-spacing:.08em;
+  color:var(--t-text);background:rgba(0,0,0,.6);
+  padding:8px 12px;border-radius:4px;
+  border:1px solid rgba(255,255,255,.18);
+  text-shadow:0 1px 4px rgba(0,0,0,.5);
+}
+
+/* ---------- bromo page: red & black treatment ---------- */
+.alt{
+  --t-bg:#cc3333;--t-text:#000;--t-title:#000;--t-muted:#000;--t-quote:#000;
+  --t-tagline:#ffff00;--t-em:#ffff00;--t-kb:#000;--t-bnum:#000;
+  --t-spot:#ffff00;--t-spotb:#ffff00;--t-line:#ffff00;--t-rule:#000;
+  --t-hair:rgba(0,0,0,.35);
+  overflow:hidden;
+}
+.alt .info{
+  background:var(--t-bg);border-right:none;padding:44px 28px 120px;
+  overflow:hidden;align-items:center;justify-content:flex-start;
+}
+.alt .info::after{display:none}
+.alt .timeline{border-top-color:var(--t-hair);margin:0;flex:1;min-width:0}
+.alt .timeline li{border-bottom-color:var(--t-hair)}
+.alt .quote{margin-top:80px;align-self:flex-start} /* same lead-in gap & left-aligned rule as the bromo page quote */
+.alt{--t-stamp-color:#000}
+.alt .title{font-size:clamp(72px,9.5vw,124px)}
+.alt .cn-sub{font-size:30px}
+.alt .tagline{font-family:var(--hand);font-style:italic;font-size:26px;margin:10px 0 48px}
+.alt .underline{width:320px}
+.alt .stamp{position:relative;right:auto;bottom:auto;width:120px;height:120px;margin:0;flex:0 0 auto}
+.alt .alt-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:36px;margin-top:56px}
+.alt .spot{margin-top:auto}
+
+/* ---------- uluwatu page: white & green treatment ---------- */
+.uluwatu{
+  --t-bg:#f0ead6;--t-text:#333;--t-title:#006400;--t-muted:#333;--t-quote:#333;--t-cnsub:#808080;
+  --t-tagline:#00008b;--t-em:#00008b;--t-kb:#333;--t-bnum:#00008b;
+  --t-spot:#00008b;--t-spotb:#00008b;--t-line:#00008b;--t-rule:#00008b;
+  --t-hair:rgba(0,0,0,.18);
+  --t-stamp-color:#ff0000;
+}
+.uluwatu .timeline{border-top-color:var(--t-hair)}
+.uluwatu .timeline li{border-bottom-color:var(--t-hair)}
+
+/* ---------- ijen page: dark slate treatment ---------- */
+.ijen{
+  --t-bg:#2f4f4f;--t-text:#fff;--t-title:#fff;--t-muted:#fff;--t-quote:#fff;
+  --t-tagline:#fff;--t-em:#fff;--t-kb:#fff;--t-bnum:#fff;--t-spot:#fff;--t-spotb:#fff;
+}
+/* stamp: red ink stamp, same form as nusa penida */
+.ijen{--t-stamp-color:#cc0000}
+/* ---------- ubud page: forest green treatment ---------- */
+.ubud{
+  --t-bg:#4f7942;--t-text:#fff;--t-title:#fff;--t-muted:#fff;--t-quote:#fff;
+  --t-tagline:#fff;--t-em:#fff;--t-kb:#fff;--t-bnum:#fff;--t-spot:#fff;--t-spotb:#fff;
+  --t-line:#e3dac9;
+}
+/* tagline + underline: light beige */
+.ubud{--t-stamp-color:#318ce7}
+/* ---------- nusa penida page: sand treatment ---------- */
+.nusapenida{
+  --t-bg:#c19a6b;--t-tagline:#1dacd6;--t-em:#1dacd6;
+  --t-spot:#1dacd6;--t-spotb:#1dacd6;--t-line:#1dacd6;--t-rule:#1dacd6;
+  --t-hair:rgba(29,172,214,.55);
+}
+/* nusa penida page: blue line accents + red stamp */
+.nusapenida .timeline{border-top-color:var(--t-hair)}
+.nusapenida .timeline li{border-bottom-color:var(--t-hair)}
+.nusapenida{--t-stamp-color:#cc0000}
+
+/* ---------- bromo entrance animations (play once per activation) ---------- */
+@keyframes bromo-underline{
+  0%{transform:scaleX(0);filter:blur(6px)}
+  65%{transform:scaleX(1.06);filter:blur(0)}
+  100%{transform:scaleX(1);filter:blur(0)}
+}
+@keyframes bromo-tagline{
+  0%{opacity:0;transform:translateX(-48px);filter:blur(5px)}
+  55%{opacity:1;filter:blur(0)}
+  80%{transform:translateX(7px)}
+  100%{opacity:1;transform:translateX(0);filter:blur(0)}
+}
+@keyframes bromo-stamp{
+  0%{transform:translateY(-220px) rotate(-12deg) scale(1.15);opacity:0}
+  45%{transform:translateY(0) rotate(-12deg) scale(.92);opacity:1}
+  52%{transform:translateY(-6px) rotate(-9deg) scale(1.06)}
+  58%{transform:translateY(2px) rotate(-15deg) scale(.97)}
+  64%{transform:translateY(-24px) rotate(-12deg) scale(1.08)}
+  74%{transform:translateY(0) rotate(-12deg) scale(.96)}
+  82%{transform:translateY(-8px) rotate(-10deg) scale(1.03)}
+  90%{transform:translateY(0) rotate(-13deg) scale(.99)}
+  100%{transform:translateY(0) rotate(-12deg) scale(1);opacity:.85}
+}
+.page.alt.active .underline{
+  transform-origin:left center;
+  animation:bromo-underline 1s cubic-bezier(.2,.7,.3,1) both;
+}
+.page.alt.active .tagline{
+  animation:bromo-tagline 1s cubic-bezier(.2,.7,.3,1) .12s both;
+}
+.page.alt.active .stamp{
+  animation:bromo-stamp 1s cubic-bezier(.3,.6,.4,1) .45s both;
+}
+/* bromo page: right photo-area entrance, mirrors left side after it settles */
+@keyframes bromo-righttext{
+  0%{opacity:0;transform:translateX(40px);filter:blur(4px)}
+  55%{opacity:1;filter:blur(0)}
+  80%{transform:translateX(-5px)}
+  100%{opacity:1;transform:translateX(0);filter:blur(0)}
+}
+.page.bromo.active .bchapter,
+.page.photo-page.active .bchapter{
+  animation:bromo-righttext 1s cubic-bezier(.2,.7,.3,1) .22s both;
+}
+.page.bromo.active .btagline,
+.page.photo-page.active .btagline{
+  animation:bromo-righttext 1s cubic-bezier(.2,.7,.3,1) .34s both;
+}
+/* thumbs strip slides in from the right edge; keeps translateY(-50%) centering */
+@keyframes bromo-thumbs{
+  0%{opacity:0;transform:translate(46px,-50%) scale(.92)}
+  60%{opacity:1;transform:translate(0,-50%) scale(1.04)}
+  80%{transform:translate(-4px,-50%)}
+  100%{opacity:1;transform:translate(0,-50%) scale(1)}
+}
+.page.bromo.active .bthumbs,
+.page.photo-page.active .bthumbs{
+  animation:bromo-thumbs .95s cubic-bezier(.2,.7,.3,1) .5s both;
+}
+/* photo counter fades in after the thumbs strip settles */
+@keyframes bromo-count-in{
+  0%{opacity:0;transform:translateY(8px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+.page.bromo.active .bcount,
+.page.photo-page.active .bcount{
+  animation:bromo-count-in .6s ease .7s both;
+}
+/* chapters: push the quote + alt-row (timeline & stamp) group down toward the bottom
+   SPOT label —auto margin absorbs the leftover info-column space, keeping the trio
+   ~71px above the SPOT at every viewport size while their mutual spacing stays fixed */
+.bromo .quote,.uluwatu .quote,.ijen .quote,.ubud .quote,.nusapenida .quote{margin-top:auto}
+/* chapters: larger handwritten tagline so it balances the timeline / stamp / SPOT below;
+   clamps back to the shared 26px on narrow screens to keep it on a single line */
+.bromo .tagline,.uluwatu .tagline,.ijen .tagline,.ubud .tagline,.nusapenida .tagline{font-size:clamp(26px,2.6vw,38px)}
+
+/* ---------- postmark stamp: double ring + circular text + centered year ---------- */
+.stamp{
+  position:absolute;right:34px;bottom:88px;width:86px;height:86px;
+  color:var(--t-stamp-color);
+  transform:rotate(-12deg);opacity:.85;
+}
+.stamp svg{display:block;width:100%;height:100%;overflow:visible}
+.stamp .s-o{fill:none;stroke:currentColor;stroke-width:2.6}
+.stamp .s-i{fill:none;stroke:currentColor;stroke-width:1.2}
+.stamp .s-ring{font-family:var(--display);font-size:14.5px;letter-spacing:10px;fill:currentColor}
+.stamp .s-year{font-family:var(--display);font-size:29px;letter-spacing:2px;fill:currentColor;text-anchor:middle}
+.stamp .s-region{font-family:var(--display);font-size:16px;letter-spacing:4px;fill:currentColor;text-anchor:middle}
+.s-defs{position:absolute;width:0;height:0;overflow:hidden}
+.spot{
+  position:absolute;left:40px;bottom:34px;
+  font-size:10px;letter-spacing:.3em;color:var(--t-spot-color);
+}
+.spot b{color:var(--t-spotb)}
+
+/* ---------- visual side ---------- */
+.visual{ /* photo strip inside the left info column */
+  position:relative;width:100%;height:clamp(200px,22vw,320px);
+  flex:0 0 auto;margin-top:26px;overflow:hidden;background:#000;
+}
+.visual img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  filter:saturate(.92) contrast(1.04);
+}
+.page.active .visual img{animation:kenburns 11s ease-out both}
+@keyframes kenburns{from{transform:scale(1.07) translate(1.2%,.8%)}to{transform:scale(1) translate(0,0)}}
+.visual::after{ /* bottom fade for caption readability */
+  content:"";position:absolute;inset:auto 0 0 0;height:38%;
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.55));pointer-events:none;
+}
+.caption{
+  position:absolute;left:34px;bottom:66px;z-index:3;
+  font-family:var(--hand);font-size:clamp(24px,2.4vw,32px);color:#fdf9ef;
+  transform:rotate(-2deg);text-shadow:0 2px 14px rgba(0,0,0,.6);
+}
+.expno{
+  position:absolute;top:18px;right:110px;z-index:3;
+  font-family:var(--display);font-size:clamp(48px,5vw,72px);line-height:1;
+  color:rgba(255,255,255,.16);letter-spacing:.05em;
+  -webkit-text-stroke:1px rgba(255,255,255,.35);
+}
+.exp-tag{
+  position:absolute;top:26px;left:30px;z-index:3;
+  font-size:10px;letter-spacing:.26em;color:rgba(255,255,255,.8);
+  background:rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.2);
+  padding:5px 12px;backdrop-filter:blur(3px);
+}
+.exp-tag b{color:var(--accent)}
+
+/* ---------- cover page ---------- */
+.cover{background:#0d0a08}
+/* cover accent tint, driven by hovered chapter bar (data-tint set via JS) */
+.cover{--tint:#e56c2f}
+.cover[data-tint="bromo"]{--tint:#cc3333}
+.cover[data-tint="ijen"]{--tint:#2f4f4f}
+.cover[data-tint="uluwatu"]{--tint:#f0ead6}
+.cover[data-tint="ubud"]{--tint:#4f7942}
+.cover[data-tint="nusa-penida"]{--tint:#c19a6b}
+.cover-inner{
+  position:relative;z-index:2;height:100%;
+  width:100%;max-width:1400px;margin:0 auto; /* centered, tighter than full-bleed */
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:100%;gap:40px;
+  padding:44px 40px 40px;align-items:stretch;overflow-y:auto;
+}
+.cover-left{width:100%;margin:0;align-self:stretch;display:flex;flex-direction:column;justify-content:space-between} /* flex column: leftover height (tall windows) is distributed between elements — no dead space in the bottom-left */
+.cover-space{position:relative;display:flex;flex-direction:column;gap:8px;min-height:0;overflow-y:auto;scrollbar-width:none} /* right half: vertical bar nav; bars flex-fill the space so all 10 fit without a scrollbar (auto-scroll stays as a fallback on extreme sizes) */
+.cover-space::-webkit-scrollbar{display:none}
+
+/* vertical bar nav (cover right half) */
+.vbar{
+  position:relative;flex:1 1 0;min-height:0;width:100%; /* flex-fill: 10 bars share the space (≈54px each), no overflow */
+  display:block;text-align:left;font-family:var(--mono);color:inherit;
+  appearance:none;-webkit-appearance:none;
+  padding:10px 14px;cursor:pointer;overflow:hidden;
+  --vb-img:none;
+  --vb-dim:rgba(18,14,11,.68);
+  background-color:rgba(18,14,11,.72);
+  background-image:linear-gradient(var(--vb-dim),var(--vb-dim)),var(--vb-img);
+  background-size:cover,cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  border:1px solid var(--line);
+  transition:border-color .35s,box-shadow .35s;
+}
+/* film-frame sprocket strip across the whole nav group top */
+.cover-space::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:13px;z-index:2;
+  pointer-events:none;
+  background-color:color-mix(in srgb,var(--ink) 5%,var(--bg));
+  background-image:repeating-linear-gradient(90deg,
+    color-mix(in srgb,var(--ink) 38%,transparent) 0 8px,
+    transparent 8px 19px);
+  box-shadow:inset 0 0 6px rgba(0,0,0,.5);
+  border-bottom:1px solid var(--line);
+}
+.vbar .vnum{position:relative;z-index:1;display:block;font-family:var(--display);font-size:21px;line-height:1;color:var(--tint);letter-spacing:.08em;transition:color .3s}
+.vbar .vtime{position:absolute;left:14px;bottom:12px;z-index:1;font-size:9.5px;letter-spacing:.24em;color:var(--ink-faint);transition:color .35s}
+.vbar .vname{
+  position:absolute;right:18px;top:50%;transform:translateY(-50%);z-index:1;
+  font-family:var(--display);font-size:clamp(20px,2vw,28px);letter-spacing:.12em;color:var(--ink);
+  transition:color .35s;
+}
+.vbar:hover,.vbar:focus-visible{
+  border-color:var(--tint);
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--tint) 35%,transparent),0 12px 32px color-mix(in srgb,var(--tint) 16%,transparent);
+  animation:vbar-pulse .9s cubic-bezier(.45,0,.25,1);
+  --vb-dim:rgba(18,14,11,.45);
+}
+.vbar:hover .vname{color:var(--tint)}
+.vbar:hover .vtime{color:var(--ink-dim)}
+@keyframes vbar-pulse{
+  0%{transform:scale(.975)}
+  45%{transform:scale(1.04)}
+  100%{transform:scale(1)}
+}
+.cover-meta{display:flex;flex-direction:column;gap:5px;font-size:10px;letter-spacing:.26em;color:var(--ink-faint);margin-bottom:10px}
+.cover-meta b{color:var(--tint);transition:color .3s}
+.cover h1{
+  font-family:var(--display);text-align:center;
+  font-size:clamp(76px,8vw,92px);line-height:.86;letter-spacing:.08em;
+  color:#fff; /* BALI solid white */
+}
+.cover h1 .bali{display:block}
+.cover h1 .num{
+  display:block;font-size:.62em;
+  color:transparent;-webkit-text-fill-color:transparent;
+  -webkit-text-stroke:2px #e56c2f; /* hollowed, orange outline kept */
+  background:var(--bg); /* black base shows through the hollow */
+  -webkit-background-clip:text;background-clip:text;
+}
+.cover-cn{font-family:var(--cn);font-weight:600;font-size:21px;letter-spacing:.6em;color:#fff;margin-top:10px}
+.cover-sub{font-family:var(--serif);font-style:italic;font-size:13px;color:#fff;margin-top:8px}
+.cover-divider{
+  height:1px;margin-top:14px;position:relative;
+  background:linear-gradient(90deg,transparent 0%,color-mix(in srgb,var(--tint) 55%,transparent) 26%,rgba(245,241,232,.22) 58%,transparent 100%);
+  box-shadow:0 1px 14px color-mix(in srgb,var(--tint) 18%,transparent);
+  transition:box-shadow .3s;
+}
+.cover-divider::after{
+  content:"";position:absolute;left:0;right:0;top:-10px;height:22px;
+  background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--tint) 7%,transparent),transparent);
+  pointer-events:none;
+}
+.enter{
+  margin-top:10px;display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:13px;letter-spacing:.28em;
+  background:var(--tint);color:#14100c;font-weight:700;
+  border:1px solid #fff;padding:10px 34px;cursor:pointer;
+  transition:all .3s;box-shadow:0 8px 30px color-mix(in srgb,var(--tint) 30%,transparent);
+}
+.enter{pointer-events:none} /* decorative only: click & navigation disabled */
+.enter:disabled{opacity:1;background:var(--tint);color:#14100c;cursor:default}
+.enter::after{content:"▸";font-size:12px}
+.cover-dev{margin-top:10px;font-size:9.5px;letter-spacing:.3em;color:var(--ink-faint)}
+
+/* gear button —jumps to the photo manager (cover bottom-right, film-style chip) */
+.cover-admin{
+  position:absolute;right:30px;bottom:30px;z-index:6;
+  width:42px;height:42px;display:flex;align-items:center;justify-content:center;
+  background:rgba(12,10,9,.55);border:1px solid var(--line);border-radius:50%;
+  color:var(--ink-dim);text-decoration:none;cursor:pointer;
+  transition:color .3s,border-color .3s,box-shadow .3s;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.cover-admin svg{
+  width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.5;
+  stroke-linecap:round;stroke-linejoin:round;
+  transition:transform .5s cubic-bezier(.45,0,.25,1);
+}
+.cover-admin:hover,.cover-admin:focus-visible{
+  color:var(--accent);border-color:rgba(229,108,47,.55);
+  box-shadow:0 0 18px rgba(229,108,47,.22);
+}
+.cover-admin:hover svg{transform:rotate(90deg)}
+.cover-admin:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.index-card{
+  background:none;border:none;box-shadow:none;backdrop-filter:none;
+  padding:14px 16px 12px; /* compact: all 10 rows fit inside the wide cover (no inner scroll) */
+  margin-top:10px;
+  max-height:none;
+  overflow-y:visible;scrollbar-width:none;
+}
+.row{
+  display:grid;grid-template-columns:26px 46px 1fr auto;gap:8px;align-items:center;
+  height:22px;padding:0;border-bottom:1px solid transparent; /* fixed row height: 10 rows ≈ 220px, one cover fits */
+  cursor:pointer;transition:background .25s;
+}
+.row:hover{background:rgba(229,108,47,.1)}
+.row .n{font-family:var(--display);font-size:15px;color:var(--tint);transition:color .3s}
+.row .d{font-size:9px;color:var(--ink-faint);letter-spacing:.1em}
+.row .p{font-family:var(--display);font-size:13px;letter-spacing:.08em;color:var(--ink)}
+.row .r{font-size:8.5px;letter-spacing:.18em;color:var(--ink-dim);border:1px solid transparent;padding:3px 7px}
+
+/* ---------- fin page ---------- */
+.fin{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  height:100%; /* fill the viewport: without this the finale only covers its content height */
+  overflow-y:auto; /* scroll when the stage is shorter than the finale content */
+  background:
+    radial-gradient(ellipse at 50% 36%,color-mix(in srgb,var(--accent) 11%,transparent) 0%,transparent 58%),
+    linear-gradient(160deg,color-mix(in srgb,var(--accent) 24%,#171310) 0%,#161008 68%,#0e0c0a 100%);
+  position:relative;
+}
+/* film-sprocket strips along the top & bottom edges, echoing the photo-page thumbs */
+.fin::before,.fin::after{
+  content:"";position:absolute;left:0;right:0;height:14px;z-index:1;pointer-events:none;
+  background-color:rgba(0,0,0,.5);
+  background-image:radial-gradient(circle at 9px 50%,rgba(245,241,232,.3) 2.6px,transparent 3.4px);
+  background-size:18px 100%;background-repeat:repeat-x;
+}
+.fin::before{top:0;border-bottom:1px solid var(--line)}
+.fin::after{bottom:0;border-top:1px solid var(--line)}
+.fin .roll-end{font-size:10px;letter-spacing:.42em;color:var(--ink-faint);margin-bottom:26px;
+  display:flex;align-items:center;gap:14px}
+.fin .roll-end::before,.fin .roll-end::after{content:"";height:1px;width:36px;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--accent) 70%,transparent))}
+.fin .roll-end::after{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 70%,transparent),transparent)}
+.fin h2{font-family:var(--display);font-size:clamp(70px,9vw,120px);letter-spacing:.06em;color:var(--ink);
+  text-shadow:0 0 34px color-mix(in srgb,var(--accent) 26%,transparent)}
+.fin h2 em{font-style:normal;color:var(--accent)}
+.fin .fin-cn{font-family:var(--cn);font-size:18px;letter-spacing:.6em;color:var(--ink-dim);margin-top:12px}
+.fin .fin-stats{display:flex;gap:0;margin:46px 0 8px;
+  border-top:1px solid rgba(245,241,232,.14);border-bottom:1px solid rgba(245,241,232,.14);
+  padding:22px 8px}
+.fin .fin-stats div{display:flex;flex-direction:column;gap:7px;padding:0 30px;
+  border-left:1px solid rgba(245,241,232,.1)}
+.fin .fin-stats div:first-child{border-left:none}
+.fin .fin-stats b{font-family:var(--display);font-size:36px;color:var(--accent);line-height:1;
+  text-shadow:0 0 20px color-mix(in srgb,var(--accent) 32%,transparent)}
+.fin .fin-stats span{font-size:9px;letter-spacing:.32em;color:var(--ink-faint)}
+.fin .fin-line{font-family:var(--cn);font-size:15px;letter-spacing:.12em;line-height:2;
+  color:var(--ink-dim);margin-top:36px;max-width:520px;white-space:pre-line}
+.fin .fin-line::before{content:"";display:block;width:56px;height:2px;margin:0 auto 18px;
+  background:var(--accent);box-shadow:0 0 12px color-mix(in srgb,var(--accent) 45%,transparent)}
+.fin button{
+  margin-top:44px;background:none;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);
+  color:var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.3em;
+  padding:14px 34px;cursor:pointer;transition:all .3s;
+}
+.fin button:hover{
+  border-color:var(--accent);color:#14100c;background:var(--accent);
+  box-shadow:0 0 26px color-mix(in srgb,var(--accent) 38%,transparent);
+}
+.fin .dev{margin-top:36px;padding-top:14px;border-top:1px solid rgba(245,241,232,.1);
+  font-size:9px;letter-spacing:.3em;color:var(--ink-faint)}
+/* fin entrance: soft rise + settle, mirrors the chapter-page rhythm */
+@keyframes fin-rise{
+  0%{opacity:0;transform:translateY(22px);filter:blur(3px)}
+  60%{opacity:1;filter:blur(0)}
+  100%{opacity:1;transform:translateY(0);filter:blur(0)}
+}
+.page.fin.active .roll-end{animation:fin-rise .9s cubic-bezier(.2,.7,.3,1) both}
+.page.fin.active h2{animation:fin-rise .95s cubic-bezier(.2,.7,.3,1) .12s both}
+.page.fin.active .fin-cn{animation:fin-rise .9s cubic-bezier(.2,.7,.3,1) .24s both}
+.page.fin.active .fin-stats{animation:fin-rise .9s cubic-bezier(.2,.7,.3,1) .34s both}
+.page.fin.active .fin-line{animation:fin-rise .9s cubic-bezier(.2,.7,.3,1) .46s both}
+.page.fin.active button{animation:fin-rise .9s cubic-bezier(.2,.7,.3,1) .58s both}
+.page.fin.active .dev{animation:fin-rise .9s cubic-bezier(.2,.7,.3,1) .7s both}
+
+/* ---------- responsive ---------- */
+@media(max-width:1100px){.expno{right:30px}}
+@media(max-width:900px){
+  .chapter{grid-template-columns:1fr;grid-template-rows:none;overflow-y:auto;align-items:start;padding:30px 24px}
+  .info{padding:26px 24px 60px;overflow-y:auto}
+  .quote{margin-top:22px}
+  .alt .quote{margin-top:22px}
+  .stamp{width:64px;height:64px;font-size:11px;right:20px;bottom:70px}
+  .chapter-space{display:none}
+  /* photo pages: hide the photo viewer on narrow screens too (specificity beats the viewer rules) */
+  .bromo .chapter-space,.photo-page .chapter-space{display:none}
+  /* bromo: back to the normal chapter card on narrow screens */
+  .bromo.chapter{grid-template-columns:1fr;padding:30px 24px;background:transparent}
+  .alt .stamp{display:none}
+  /* fin: keep the finale centered and scrollable on narrow screens */
+  .fin{padding:64px 24px;overflow-y:auto}
+  .fin .roll-end{letter-spacing:.28em;gap:10px}
+  .fin .roll-end::before,.fin .roll-end::after{width:22px}
+  .fin h2{font-size:clamp(64px,16vw,120px)}
+  .fin .fin-stats{flex-wrap:wrap;justify-content:center;gap:18px 26px;padding:18px 0;margin:40px 0 4px}
+  .fin .fin-stats div{padding:0;border-left:none}
+  .fin .fin-stats b{font-size:30px}
+  .cover-inner{grid-template-columns:1fr;grid-template-rows:none;overflow-y:auto;align-items:start;padding:30px 24px}
+  .cover-left{width:100%;margin-left:0}
+  .cover-space{margin-top:30px;min-height:0} /* height follows the 10 bars (10×34 + 9×8 = 412px), no internal scrollbar */
+  /* narrow screens: each bar collapses to a single compact row (num · time · name) */
+  .vbar{min-height:34px;padding:4px 10px;display:flex;align-items:center;gap:10px}
+  .vbar .vnum{font-size:14px;line-height:1;letter-spacing:.06em}
+  .vbar .vtime{position:static;font-size:8px;letter-spacing:.12em}
+  .vbar .vname{position:static;transform:none;font-size:15px;margin-left:auto;letter-spacing:.08em}
+  /* narrow screens: squeeze the left column (one screen can't hold hero + 10 index rows + 10 bars,
+     so the index list scrolls internally with hidden bars — everything stays reachable, nothing clipped) */
+  .cover-meta{gap:4px;font-size:9.5px;letter-spacing:.2em;margin-bottom:10px}
+  .cover h1{font-size:clamp(60px,16vw,76px)}
+  .cover-cn{font-size:19px;letter-spacing:.5em;margin-top:8px}
+  .cover-sub{font-size:12.5px;margin-top:6px}
+  .cover-divider{margin-top:12px}
+  .index-card{padding:12px 10px 10px;margin-top:8px;max-height:190px;overflow-y:auto;scrollbar-width:none}
+  .index-card::-webkit-scrollbar{display:none}
+  .row{grid-template-columns:22px 40px 1fr auto;gap:6px;height:20px}
+  .row .n{font-size:14px}
+  .row .d{font-size:8px}
+  .row .p{font-size:12px}
+  .row .r{font-size:8px;padding:2px 5px}
+  .enter{margin-top:12px;padding:9px 26px;font-size:12px}
+  .cover-dev{margin-top:10px;font-size:9px}
+}
+
+/* wide + tall screens: scale the cover left column up so it fills the taller stage
+   (base size fits the 748px window; higher windows get bigger type & rows via these tiers) */
+@media (min-width:901px) and (min-height:801px){
+  .cover-meta{font-size:11px;gap:6px;margin-bottom:12px}
+  .cover h1{font-size:clamp(88px,9vw,96px)}
+  .cover-cn{font-size:24px;margin-top:12px}
+  .cover-sub{font-size:14px;margin-top:10px}
+  .cover-divider{margin-top:16px}
+  .index-card{padding:14px 18px 12px;margin-top:12px}
+  .row{height:23px}
+  .row .n{font-size:16px}
+  .row .p{font-size:14px}
+  .enter{margin-top:12px;padding:12px 36px;font-size:14px}
+  .cover-dev{margin-top:12px}
+}
+@media (min-width:901px) and (min-height:901px){
+  .cover-meta{font-size:11px;gap:7px;margin-bottom:16px}
+  .cover h1{font-size:clamp(104px,10.5vw,120px)}
+  .cover-cn{font-size:26px;margin-top:14px}
+  .cover-sub{font-size:15px;margin-top:12px}
+  .cover-divider{margin-top:18px}
+  .index-card{padding:16px 20px 14px;margin-top:14px}
+  .row{height:26px}
+  .row .n{font-size:18px}
+  .row .p{font-size:16px}
+  .enter{margin-top:14px;padding:13px 42px;font-size:15px}
+  .cover-dev{margin-top:14px;font-size:10.5px}
+}
+
+/* ---------- photo lightbox: full-res original view ----------
+   opened by clicking the chapter photo area — the untouched /photos2 file
+   (no crop), paged with the on-screen arrows or the keyboard, closed by
+   × / Esc / backdrop click. z-index sits above the grain overlay; the
+   capture-phase listeners in PhotoLightbox keep the album's global paging
+   (arrow keys, swipe, wheel) inert while it is open. */
+#plight{
+  position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;
+  background:rgba(5,4,3,.92);backdrop-filter:blur(4px);
+  animation:plight-in .22s ease;
+}
+@keyframes plight-in{from{opacity:0}to{opacity:1}}
+.pl-bar{
+  position:absolute;top:0;left:0;right:0;z-index:2;height:52px;
+  display:flex;align-items:center;gap:14px;padding:0 18px;
+  background:rgba(10,8,6,.82);border-bottom:1px solid var(--line);
+  backdrop-filter:blur(6px);
+}
+.pl-name{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--ink-dim);
+  flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.pl-count{
+  font-family:var(--display);font-size:16px;letter-spacing:.14em;color:var(--ink);
+  background:rgba(0,0,0,.45);border:1px solid var(--line);padding:5px 11px;border-radius:3px;
+}
+.pl-x{
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--ink-dim);
+  background:none;border:1px solid var(--line);padding:6px 12px;cursor:pointer;transition:all .25s;
+}
+.pl-x:hover{color:var(--ink);border-color:var(--ink)}
+.pl-img{
+  max-width:calc(100vw - 56px);max-height:calc(100vh - 92px);
+  object-fit:contain;box-shadow:0 30px 90px rgba(0,0,0,.7);
+  animation:plight-img .3s ease;
+}
+@keyframes plight-img{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
+.pl-nav{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:2;
+  width:46px;height:46px;border-radius:50%;
+  font-family:var(--display);font-size:26px;line-height:1;color:var(--ink);
+  background:rgba(10,8,6,.55);border:1px solid rgba(255,255,255,.22);
+  cursor:pointer;transition:all .25s;backdrop-filter:blur(3px);
+}
+.pl-nav:hover{background:#e56c2f;color:#14100c;border-color:#e56c2f}
+.pl-nav.prev{left:18px}
+.pl-nav.next{right:18px}
+@media(max-width:760px){
+  .pl-nav{width:38px;height:38px;font-size:21px}
+  .pl-nav.prev{left:8px}
+  .pl-nav.next{right:8px}
+  .pl-count{display:none} /* keep the bar tight on phones */
+}

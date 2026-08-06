@@ -1,0 +1,424 @@
+/* BALI 2026 · text & style config page (text.html) — standalone stylesheet.
+   Shared look with admin.css (same palette) but self-contained because the
+   page does not load admin.css. */
+:root{
+  --bg:#14100c;--panel:#1d1812;--line:rgba(245,241,232,.14);
+  --ink:#f5f1e8;--dim:rgba(245,241,232,.62);--faint:rgba(245,241,232,.38);
+  --accent:#e56c2f;--danger:#e05b4a;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(229,108,47,.08),transparent 55%),
+    linear-gradient(160deg,#171310 0%,#0e0c0a 100%);
+  color:var(--ink);font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif;
+  min-height:100vh;overflow-y:auto;
+}
+header{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:18px 28px;border-bottom:1px solid var(--line);
+  background:rgba(12,10,9,.85);position:sticky;top:0;z-index:10;backdrop-filter:blur(6px);
+}
+header .brand{font-size:13px;letter-spacing:.28em;font-weight:700}
+header .brand b{color:var(--accent)}
+header .hlnk{display:flex;gap:10px;flex-wrap:wrap}
+header a{
+  color:var(--dim);text-decoration:none;font-size:12px;letter-spacing:.14em;
+  border:1px solid var(--line);padding:7px 16px;transition:all .25s;
+}
+header a:hover{color:var(--ink);border-color:var(--accent)}
+
+/* main layout: page list | editor | live preview */
+main#tcfg{
+  display:grid;grid-template-columns:248px minmax(0,1fr) minmax(400px,42%);
+  gap:18px;max-width:1500px;margin:0 auto;padding:22px 20px 48px;align-items:start;
+}
+h3{font-size:11px;letter-spacing:.26em;font-weight:700;color:var(--dim);margin-bottom:10px}
+.panel h3{font-size:11.5px;letter-spacing:.22em;margin-bottom:12px}
+.tip{font-size:10.5px;line-height:1.6;color:var(--faint);margin-bottom:12px;letter-spacing:.04em}
+
+/* page list */
+#plist{
+  background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px;
+  position:sticky;top:70px;max-height:calc(100vh - 92px);overflow-y:auto;
+}
+#plist .it{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+#plist .it input[type=checkbox]{accent-color:var(--accent);flex:0 0 auto;cursor:pointer}
+#plist .it button{
+  flex:1;display:flex;align-items:center;gap:6px;text-align:left;
+  background:none;border:1px solid transparent;color:var(--dim);cursor:pointer;
+  font-size:11.5px;letter-spacing:.1em;padding:8px 8px;transition:all .2s;min-width:0;
+}
+#plist .it button:hover{color:var(--ink);border-color:var(--line)}
+#plist .it.on button{
+  color:#14100c;background:var(--accent);border-color:var(--accent);font-weight:700;
+}
+#plist .it button em{
+  font-style:normal;font-size:9.5px;letter-spacing:.1em;opacity:.55;
+  font-family:Consolas,monospace;margin-left:auto;flex:0 0 auto;
+}
+#plist .it .dot{
+  width:7px;height:7px;border-radius:50%;background:var(--accent);flex:0 0 auto;
+  box-shadow:0 0 8px rgba(229,108,47,.8);
+}
+#plist .it.on .dot{background:#14100c;box-shadow:none}
+/* photo-count badge in the page list */
+#plist .it .cnt{
+  flex:0 0 auto;font-family:Consolas,monospace;font-size:9.5px;line-height:1;
+  color:var(--ink);background:rgba(245,241,232,.12);border-radius:9px;
+  padding:3px 7px;letter-spacing:.06em;
+}
+#plist .it.on .cnt{background:rgba(0,0,0,.25)}
+/* pseudo-page rows (cover / fin) have no checkbox — nudge them to align */
+#plist .it.cf button{margin-left:22px}
+#batchBtn{
+  width:100%;margin-top:12px;font-size:10.5px;letter-spacing:.14em;
+  background:none;border:1px dashed rgba(229,108,47,.5);color:var(--accent);
+  padding:10px 12px;cursor:pointer;transition:all .25s;
+}
+#batchBtn:hover{background:rgba(229,108,47,.12)}
+#batchBtn:disabled{opacity:.4;cursor:not-allowed}
+
+/* editor panels */
+#edit{display:flex;flex-direction:column;gap:14px;min-width:0}
+/* editor tabs — text config | photo management */
+.mtabs{display:flex;gap:8px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.mtabs button{
+  font-size:11px;letter-spacing:.2em;padding:9px 18px;cursor:pointer;
+  background:none;border:1px solid var(--line);color:var(--dim);border-radius:3px;
+  transition:all .25s;
+}
+.mtabs button:hover{color:var(--ink);border-color:var(--dim)}
+.mtabs button.on{color:#14100c;background:var(--accent);border-color:var(--accent);font-weight:700}
+.mtabs button:disabled{opacity:.35;cursor:not-allowed}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px 16px}
+.cfield{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.cfield:last-child{margin-bottom:0}
+.cfield .lab{flex:0 0 130px;font-size:11.5px;letter-spacing:.14em;color:var(--dim)}
+.cfield .lab em{display:block;font-style:normal;font-size:9px;letter-spacing:.2em;color:var(--faint);margin-top:3px;font-family:Consolas,monospace}
+.cfield input[type=color]{
+  width:46px;height:34px;padding:2px;background:#0f0c09;border:1px solid var(--line);
+  cursor:pointer;border-radius:3px;
+}
+.cfield .hex{
+  flex:1;min-width:150px;background:#0f0c09;border:1px solid var(--line);color:var(--ink);
+  font-family:Consolas,monospace;font-size:12.5px;letter-spacing:.1em;padding:9px 12px;
+  outline:none;transition:border-color .25s;
+}
+.cfield .hex:focus{border-color:var(--accent)}
+.cfield .hex::placeholder{color:var(--faint)}
+.cfield .cx{
+  flex:0 0 26px;height:26px;background:none;border:1px solid rgba(224,91,74,.35);
+  color:var(--faint);cursor:pointer;font-size:13px;line-height:1;border-radius:3px;
+  transition:all .2s;font-family:inherit;
+}
+.cfield .cx:hover{color:#fff;background:var(--danger);border-color:var(--danger)}
+.cfield .e{flex:0 0 100%;font-size:10.5px;color:var(--danger);letter-spacing:.06em;font-weight:400}
+.cfield.err .hex{border-color:var(--danger)}
+.tfield{display:block;margin-bottom:10px}
+.tfield .lab{display:block;font-size:10.5px;letter-spacing:.14em;color:var(--faint);margin-bottom:5px;font-family:Consolas,monospace}
+.tfield textarea{
+  width:100%;background:#0f0c09;border:1px solid var(--line);color:var(--ink);
+  font-family:inherit;font-size:12.5px;line-height:1.6;padding:9px 12px;resize:vertical;
+  outline:none;transition:border-color .25s;min-height:38px;
+}
+.tfield textarea:focus{border-color:var(--accent)}
+/* blank boxes show the built-in default as placeholder — the visual cue that
+   an empty field means a blank spot on the album page */
+.tfield textarea::placeholder{color:var(--faint);opacity:.65;white-space:pre-wrap}
+.tlrow input::placeholder{color:var(--faint);opacity:.7}
+.tl{margin-top:18px;border-top:1px dashed var(--line);padding-top:14px}
+.tl .lab{display:block;font-size:10.5px;letter-spacing:.14em;color:var(--faint);margin-bottom:8px;font-family:Consolas,monospace}
+.tlrow{display:flex;gap:8px;margin-bottom:8px}
+.tlrow input{
+  background:#0f0c09;border:1px solid var(--line);color:var(--ink);
+  font-family:inherit;font-size:12px;padding:8px 10px;outline:none;transition:border-color .25s;
+}
+.tlrow input:focus{border-color:var(--accent)}
+.tlrow .t{width:130px;flex:0 0 130px}
+.tlrow .s{flex:1;min-width:0}
+.tlrow .x{
+  flex:0 0 30px;background:none;border:1px solid rgba(224,91,74,.4);color:var(--danger);
+  cursor:pointer;font-size:14px;transition:all .2s;
+}
+.tlrow .x:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+.tl .add{
+  font-size:10.5px;letter-spacing:.12em;background:none;border:1px dashed var(--line);
+  color:var(--dim);padding:8px 14px;cursor:pointer;transition:all .25s;
+}
+.tl .add:hover{color:var(--ink);border-color:var(--accent)}
+
+/* two-column field grids — colour rows and copy fields share the same rhythm,
+   mirroring the photo grid / upload panel visual language of the manager */
+.cgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
+/* compact colour rows inside the grids — short label, smaller controls */
+.cgrid .cfield{gap:8px;margin-bottom:0}
+.cgrid .cfield .lab{flex:0 0 88px;font-size:10.5px;letter-spacing:.08em;line-height:1.4}
+.cgrid .cfield .lab em{display:none}
+.cgrid .cfield input[type=color]{width:38px;height:28px}
+.cgrid .cfield .hex{min-width:0;padding:6px 8px;font-size:11.5px;letter-spacing:.06em}
+.cgrid .cfield .cx{flex:0 0 24px;height:24px}
+.cgrid .cfield .e{flex:0 0 100%;margin-top:4px}
+.cgrid-copy .tfield{margin-bottom:0}
+.hline{border-top:1px dashed var(--line);margin:14px 0}
+.sub{
+  font-size:10.5px;letter-spacing:.2em;font-weight:700;color:var(--dim);
+  margin-bottom:12px;line-height:1.5;
+}
+.sub em{
+  display:block;font-style:normal;font-size:9px;letter-spacing:.08em;
+  color:var(--faint);font-weight:400;margin-top:3px;
+}
+
+/* action buttons — bar styling mirrors the photo panel toolbar */
+.acts{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:10px 14px;border:1px solid var(--line);border-radius:3px;
+  background:rgba(245,241,232,.03);
+}
+.acts button{
+  font-size:11px;letter-spacing:.16em;padding:9px 16px;cursor:pointer;transition:all .25s;
+  background:none;border:1px solid var(--line);color:var(--dim);
+}
+.acts button:hover{color:var(--ink);border-color:var(--dim)}
+.acts button:disabled{opacity:.35;cursor:not-allowed}
+.acts button:hover:disabled{color:var(--dim);border-color:var(--line)}
+.acts .go{background:var(--accent);border:none;color:#14100c;font-weight:700}
+.acts .go:hover{box-shadow:0 0 22px rgba(229,108,47,.4)}
+.acts .go:hover:disabled{color:#14100c;box-shadow:none}
+.acts .hint{font-size:10px;letter-spacing:.06em;color:var(--faint);flex:1 1 100%}
+
+/* live preview — the real chapter-card classes come from styles.css (loaded
+   first), so the preview is pixel-faithful; the pane stays pinned beside the
+   editor while scrolling, and the container query scales the album fonts */
+#preview{
+  position:sticky;top:70px;max-height:calc(100vh - 92px);overflow-y:auto;
+  container-type:inline-size;cursor:pointer;
+}
+.pv-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+#preview h3{margin-bottom:0}
+.full-btn{
+  background:none;border:1px solid var(--line);color:var(--dim);
+  font-family:inherit;font-size:10px;letter-spacing:.16em;padding:5px 10px;
+  cursor:pointer;transition:all .25s;flex:0 0 auto;
+}
+.full-btn:hover{color:var(--ink);border-color:var(--accent)}
+
+/* staticisation shared by the side pane and the fullscreen overlay — the
+   real components are absolute full-viewport layers by default */
+.pv .page.chapter.alt{
+  min-height:0;max-height:none;width:100%;height:auto;
+  position:static;opacity:1;visibility:visible;transform:none;
+  overflow:visible;background:var(--t-bg); /* keep the configured bg even under narrow-viewport rules */
+}
+.pv .page.cover,
+.pv .page.fin{
+  position:static;inset:auto;opacity:1;visibility:visible;transform:none;
+  height:auto;min-height:0;max-height:none;width:100%;overflow:visible;
+}
+.pv .cover-admin{display:none}
+.pv .stamp{display:block} /* never hidden in the preview */
+.pv .chapter-space{position:relative;display:block;width:100%;overflow:hidden}
+
+/* narrow side pane: collapse the album pages to a compact single-column card */
+#preview .page.chapter.alt{
+  grid-template-columns:1fr;grid-template-rows:none;gap:0;padding:26px;
+}
+#preview .info{
+  width:100%;min-width:0;padding:26px 24px;border-right:none;
+  overflow:visible;align-items:center;justify-content:flex-start;
+}
+/* the real .alt .title scales with the viewport (clamp up to 96px), which
+   dwarfs the preview column — scale it to the container instead so the
+   longest title (NUSA PENIDA) always fits on one line */
+#preview .title{font-size:clamp(44px,15cqw,96px);word-break:break-word}
+#preview .quote{margin-top:22px;max-width:100%}
+#preview .spot{position:static;margin-top:20px}
+#preview .underline{width:220px}
+#preview .tagline{font-size:20px;margin:8px 0 30px}
+#preview .alt-row{margin-top:24px;gap:18px}
+#preview .stamp{width:110px;height:110px}
+#preview .btagline{font-size:18px}
+
+/* cover / fin pseudo-page preview — the real album components rendered live
+   with the draft copy. The album pages are full-viewport absolute layers; in
+   the 430px column they collapse to a compact card: the cover goes single
+   column (vbar nav hidden), fonts scale to the container (cqw) so the live
+   text stays readable while editing */
+#preview .cover-inner{
+  grid-template-columns:1fr;grid-template-rows:none;gap:0;
+  height:auto;max-height:none;padding:26px;overflow:visible;
+}
+#preview .cover-left{width:100%;margin:0;justify-content:flex-start;gap:14px}
+#preview .cover-space{display:none} /* vertical bar nav is inert in the preview */
+#preview .cover h1{font-size:clamp(36px,14cqw,58px)}
+#preview .cover .index-card{margin-top:10px}
+#preview .fin{justify-content:flex-start;padding:34px 24px}
+#preview .fin h2{font-size:clamp(48px,18cqw,84px)}
+#preview .fin .fin-stats{flex-wrap:wrap;justify-content:center;gap:14px 24px;margin:34px 0 4px;padding:16px 0}
+#preview .fin .fin-stats div{padding:0;border-left:none}
+/* photo strip in the preview — the real PhotoStrip renders absolute shots +
+   film-strip thumbs inside .chapter-space; fix the column height so the page
+   shows the photo layout exactly as it does in the album */
+#preview .chapter-space{
+  height:250px;margin-top:14px;border-radius:3px;
+}
+#preview .chapter-space .bshot{border-radius:3px}
+/* simplified side-pane preview — no film-strip thumbs / photo counter, only
+   the first shot (or the black placeholder when the page has no photos); the
+   fullscreen overlay (#preview-full) keeps every navigation control */
+#preview .bthumbs,
+#preview .bcount{display:none}
+
+/* fullscreen overlay — the same live components at album scale: the wrapper
+   gets a fixed viewport height so the album's grid-template-rows:100% and the
+   absolute photo layers resolve to their real size, fonts scale with the
+   viewport exactly like the album (the cqw rules above don't apply here) */
+#preview-full{
+  position:fixed;inset:0;z-index:900;overflow-y:auto;
+  background:rgba(12,9,6,.9);backdrop-filter:blur(3px);
+  display:flex;flex-direction:column;align-items:center;
+  padding:64px 24px 40px;animation:pv-in .22s ease;
+}
+@keyframes pv-in{from{opacity:0}to{opacity:1}}
+.full-bar{
+  position:fixed;top:0;left:0;right:0;z-index:2;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 20px;background:rgba(16,12,9,.94);
+  border-bottom:1px solid rgba(229,108,47,.28);
+}
+.full-title{font-family:Consolas,monospace;font-size:11px;letter-spacing:.22em;color:#d8cdb8}
+.full-x{
+  background:none;border:1px solid var(--line);color:var(--dim);
+  font-family:inherit;font-size:10.5px;letter-spacing:.18em;padding:7px 14px;
+  cursor:pointer;transition:all .25s;
+}
+.full-x:hover{color:var(--ink);border-color:var(--accent)}
+.full-wrap{width:100%;max-width:1280px;margin:0 auto;animation:pv-scale .28s ease}
+@keyframes pv-scale{from{opacity:0;transform:scale(.965)}to{opacity:1;transform:none}}
+.full-wrap .page.chapter.alt,
+.full-wrap .page.cover,
+.full-wrap .page.fin{height:calc(100dvh - 120px);min-height:520px}
+.full-wrap .page.chapter.alt{overflow-y:auto}
+
+/* ---- photo crop tool ----
+   modal with a draggable selection box on the full image: the box keeps
+   the stage aspect ratio (the album photo column), drag inside to pan the
+   focus, drag a corner to zoom; the preview pane shows the exact cropStyle
+   the album renders, so the box frames what the page will show */
+#cropDlg{
+  position:fixed;inset:0;z-index:950;display:flex;align-items:center;justify-content:center;
+  background:rgba(8,6,5,.78);backdrop-filter:blur(3px);animation:pv-in .22s ease;
+}
+.crop-panel{
+  width:min(900px,94vw);max-height:92vh;overflow-y:auto;
+  background:var(--panel);border:1px solid var(--line);border-radius:4px;
+  box-shadow:0 24px 60px rgba(0,0,0,.55);animation:pv-scale .26s ease;
+}
+.crop-head{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.crop-head h3{font-size:12.5px;letter-spacing:.2em;font-weight:700;margin:0}
+.crop-file{
+  font-family:Consolas,monospace;font-size:10.5px;color:var(--faint);flex:1;
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.crop-body{display:flex;gap:18px;padding:18px}
+.crop-stage{
+  position:relative;flex:1 1 auto;min-width:0;min-height:420px;
+  display:flex;align-items:center;justify-content:center;
+  background:#0c0a07;border:1px solid var(--line);border-radius:3px;overflow:hidden;
+}
+.crop-stage img{max-width:100%;max-height:100%;user-select:none;-webkit-user-drag:none}
+.crop-box{
+  position:absolute;z-index:3;cursor:move;touch-action:none;
+  border:1px solid rgba(255,255,255,.92);outline:1px solid rgba(0,0,0,.35);
+  box-shadow:0 0 0 9999px rgba(8,6,5,.62); /* dim everything outside the box */
+}
+.crop-box .ln{position:absolute;background:rgba(255,255,255,.5);pointer-events:none}
+.crop-box .ln-h{left:0;right:0;top:50%;height:1px;transform:translateY(-.5px)}
+.crop-box .ln-v{top:0;bottom:0;left:50%;width:1px;transform:translateX(-.5px)}
+.crop-box .hd{
+  position:absolute;width:14px;height:14px;z-index:4;touch-action:none;
+  border:2px solid #fff;background:rgba(229,108,47,.92);border-radius:2px;
+}
+.crop-box .hd.nw{left:-7px;top:-7px;cursor:nwse-resize}
+.crop-box .hd.ne{right:-7px;top:-7px;cursor:nesw-resize}
+.crop-box .hd.sw{left:-7px;bottom:-7px;cursor:nesw-resize}
+.crop-box .hd.se{right:-7px;bottom:-7px;cursor:nwse-resize}
+.crop-side{flex:0 0 240px;display:flex;flex-direction:column;gap:12px}
+.crop-preview{
+  width:100%;aspect-ratio:3/4;background:#000;background-size:cover;background-position:center;
+  border:1px solid var(--line);border-radius:3px;position:relative;
+}
+.crop-preview::after{ /* preview label — the pane shows the album crop */
+  content:"实时预览";position:absolute;left:8px;top:8px;z-index:1;
+  font-size:9px;letter-spacing:.2em;color:#fff;background:rgba(0,0,0,.5);padding:3px 8px;border-radius:2px;
+}
+.crop-info{display:flex;flex-direction:column;gap:6px}
+.crop-info .zoom{font-family:Consolas,monospace;font-size:11px;color:var(--accent);letter-spacing:.1em}
+.crop-info .hint{font-size:10px;color:var(--faint);line-height:1.6}
+.crop-acts{display:flex;gap:10px;justify-content:flex-end;margin-top:auto}
+.crop-acts button{
+  font-family:inherit;font-size:11px;letter-spacing:.16em;padding:9px 14px;cursor:pointer;
+  transition:all .25s;background:none;border:1px solid var(--line);color:var(--dim);
+}
+.crop-acts button:hover{color:var(--ink);border-color:var(--dim)}
+.crop-acts .cancel{color:var(--danger);border-color:rgba(224,91,74,.4)}
+.crop-acts .cancel:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+.crop-acts .go{background:var(--accent);border:none;color:#14100c;font-weight:700}
+.crop-acts .go:hover{box-shadow:0 0 22px rgba(229,108,47,.4)}
+@media(max-width:760px){
+  .crop-body{flex-direction:column}
+  .crop-side{flex:1 1 auto;width:100%}
+  .crop-stage{min-height:300px}
+}
+
+/* toast + modal (same contract as admin.css so TextConfig/Modal can share) */
+#status{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+  font-size:12px;letter-spacing:.14em;padding:11px 22px;border-radius:3px;
+  opacity:0;pointer-events:none;transition:all .35s;z-index:20;
+  background:#262019;border:1px solid var(--line);color:var(--ink);
+}
+#status.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#status.ok{border-color:rgba(120,200,120,.5);color:#9ad19a}
+#status.err{border-color:rgba(224,91,74,.6);color:#f0a396}
+#dlg{
+  position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:50;
+  background:rgba(8,6,5,.72);backdrop-filter:blur(3px);
+}
+#dlg.show{display:flex}
+#dlg .box{
+  width:min(400px,92vw);background:var(--panel);border:1px solid var(--line);border-radius:4px;
+  padding:24px 22px;box-shadow:0 24px 60px rgba(0,0,0,.55);
+}
+#dlg h3{font-size:12.5px;letter-spacing:.2em;font-weight:700;margin-bottom:8px}
+#dlg p{font-size:11px;letter-spacing:.06em;line-height:1.7;color:var(--dim);margin-bottom:16px;white-space:pre-line}
+#dlg p.err{color:var(--danger)}
+#dlg input{
+  width:100%;background:#0f0c09;border:1px solid var(--line);color:var(--ink);
+  font-family:"Consolas","Courier New",monospace;font-size:13px;letter-spacing:.12em;
+  padding:11px 12px;margin-bottom:18px;outline:none;transition:border-color .25s;
+}
+#dlg input:focus{border-color:var(--accent)}
+#dlg .row{display:flex;gap:10px;justify-content:flex-end}
+#dlg .row button{font-size:11.5px;letter-spacing:.18em;padding:10px 20px;cursor:pointer;transition:all .25s}
+#dlg .cancel{background:none;border:1px solid var(--line);color:var(--dim)}
+#dlg .cancel:hover{color:var(--ink);border-color:var(--dim)}
+#dlg .ok{background:var(--accent);border:none;color:#14100c;font-weight:700}
+#dlg .ok:hover{box-shadow:0 0 22px rgba(229,108,47,.4)}
+#dlg .ok.danger{background:var(--danger)}
+#dlg .ok.danger:hover{box-shadow:0 0 22px rgba(224,91,74,.4)}
+
+@media(max-width:1180px){
+  main#tcfg{grid-template-columns:240px minmax(0,1fr)}
+  #preview{grid-column:1 / -1}
+}
+@media(max-width:860px){
+  .cgrid{grid-template-columns:1fr;gap:12px}
+}
+@media(max-width:700px){
+  header{padding:14px 16px}
+  main#tcfg{grid-template-columns:1fr;padding:20px 14px 50px}
+  #plist{position:static;max-height:none}
+  #preview{position:static;max-height:none;overflow:visible}
+}

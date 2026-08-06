@@ -1,0 +1,28 @@
+{
+  "1": {
+    "uluwatu.jpg": {
+      "fx": 0.6476,
+      "fy": 0.2016,
+      "zoom": 1.97
+    }
+  },
+  "bromo": {
+    "bromo.jpg": {
+      "fx": 0.6271,
+      "fy": 0.2659,
+      "zoom": 2.2
+    },
+    "kevin-zhang-dzFB8xeWg1M-unsplash.jpg": {
+      "fx": 0.8656,
+      "fy": 0.3734,
+      "zoom": 1.86
+    }
+  },
+  "nusa-penida": {
+    "alexander-nrjwolf-w_gE5svbwDY-unsplash (1).jpg": {
+      "fx": 0.646,
+      "fy": 0.1993,
+      "zoom": 2.23
+    }
+  }
+}
